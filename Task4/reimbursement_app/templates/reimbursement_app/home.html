@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ad Reimbursement</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="container">
+    <h1 class="mt-5 text-center">Ad Reimbursement</h1>
+    <div class="d-flex justify-content-end">
+      <a class="btn btn-primary mt-3" href="{% url 'logout' %}">Logout</a>
+
+    </div>
+    <form class="mt-5 m-auto" style="max-width: 500px;" method="post">
+      {% csrf_token %}
+      <div class="form-group mt-5">
+        <label for="ad_type">Ad Type:</label>
+        <select class="form-control" name="ad_type" id="ad_type">
+          <option value="0011">0011</option>
+          <option value="1011">1011</option>
+          <option value="1111">1111</option>
+          <option value="1010">1010</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="count">Number of Ads Run:</label>
+        <input type="number" class="form-control" name="count" id="count">
+      </div>
+      <div class="form-group">
+        <label for="spend">Actual Spend per Ad ($):</label>
+        <input type="number" step="0.01" class="form-control" name="spend" id="spend">
+      </div>
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary">Calculate</button>
+      </div>
+    </form>
+
+    {% if all_ads_data|length %}
+    <div class="mt-5">
+      <h3>Reimbursement Details</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Ad Type</th>
+            <th scope="col">Date</th>
+            <th scope="col">Ads_Run</th>
+            <th scope="col">Spend</th>
+            <th scope="col">Cost_Sharing</th>
+            <th scope="col">Reimbursement</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tbody>
+          {% for ad_data in all_ads_data %}
+          <tr>
+            <td>{{ ad_data.ad_type }}</td>
+            <td>{{ ad_data.date }}</td>
+            <td>{{ ad_data.count }}</td>
+            <td>${{ ad_data.actual_spend }}</td>
+            <td>${{ ad_data.cost_share }}</td>
+            <td>${{ ad_data.reimbursement }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="mt-5">No data to display.</p>
+    {% endif %}
+  </div>
+</body>
+
+</html>
