@@ -1,35 +1,22 @@
 import pandas as pd
 
-df = pd.read_csv("task3_dateset.csv")
+df = pd.read_csv('task3_dateset.csv')
 
 df['Date'] = pd.to_datetime(df['Date'])
 
-grouped = df.groupby('Site').apply(lambda x: x.sort_values('Date')).reset_index(drop=True)
+df = df.sort_values(by=['Site', 'Date'])
 
-# Iterate over each group
-for name, group in grouped.groupby('Site'):
-    try:
-        first_non_zero_index = group['Ads_Run'].ne(0).idxmax()
-    except ValueError:
-        continue  # Skip this group if there are no non-zero values
-    first_non_zero_value = group.loc[first_non_zero_index, 'Ads_Run']
-
-    group.loc[first_non_zero_index:, 'Corrected_Ads_Run'] = first_non_zero_value
-
-    prev_ads_run = first_non_zero_value
-    for i, row in group.iloc[:first_non_zero_index].iterrows():
-        if row['Ads_Run'] == 0:
-            prev_ads_run -= 1
-            grouped.at[i, 'Corrected_Ads_Run'] = max(0, prev_ads_run)
+def correct_ads_run(group):
+    first_nonzero_index = group['Ads_Run'].ne(0).idxmax()
+    group['Corrected_Ads_Run'] = group.loc[first_nonzero_index, 'Ads_Run']
+    for i in range(first_nonzero_index + 1, len(group)):
+        if group.loc[i, 'Ads_Run'] == 0:
+            group.loc[i, 'Corrected_Ads_Run'] = max(0, group.loc[i - 1, 'Corrected_Ads_Run'] - 1)
         else:
-            break
+            group.loc[i, 'Corrected_Ads_Run'] = group.loc[i, 'Ads_Run']
 
-    prev_ads_run = first_non_zero_value
+    return group
 
-    for i, row in group.iloc[first_non_zero_index + 1:].iterrows():
-        if row['Ads_Run'] == 0:
-            prev_ads_run += 1
-            grouped.at[i, 'Corrected_Ads_Run'] = prev_ads_run
+corrected_df = df.groupby('Site').apply(correct_ads_run)
 
-
-grouped.to_csv("corrected_task3_dataset.csv", index=False)
+corrected_df.to_csv('corrected_task3_dataset.csv', index=False)
