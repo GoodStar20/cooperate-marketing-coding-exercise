@@ -8,7 +8,7 @@ def correct_ads_run(group):
     group = group.reset_index(drop=True)  # Reset index before iterating
     first_nonzero_index = group['Ads_Run'].ne(0).idxmax()
     group['Corrected_Ads_Run'] = group.loc[first_nonzero_index, 'Ads_Run']
-    print(group)
+
     for i in range(first_nonzero_index + 1, len(group)):
         if group.loc[i, 'Ads_Run'] == 0 or group.loc[i, 'Ads_Run'] != group.loc[i - 1, 'Corrected_Ads_Run'] + 1:
             group.loc[i, 'Corrected_Ads_Run'] =  group.loc[i - 1, 'Corrected_Ads_Run'] + 1
