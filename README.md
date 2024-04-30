@@ -37,6 +37,8 @@ $ python3 task2.py
 ```bash
 $ python3 task3.py
 ```
+#### Result
+https://github.com/GoodStar20/cooperate-marketing-coding-exercise/blob/main/corrected_task3_dataset.csv
 
 ### Task 4
 
