@@ -29,12 +29,15 @@
       {% csrf_token %}
       <div class="form-group mt-5">
         <label for="ad_type">Ad Type:</label>
-        <select class="form-control" name="ad_type" id="ad_type">
-          <option value="0011">0011</option>
-          <option value="1011">1011</option>
-          <option value="1111">1111</option>
-          <option value="1010">1010</option>
+        {% if types|length %}
+        <select class="form-control" name="ad_type" id="ad_type" onchange="updateCostShareRate()">
+          <option value=""></option>
+          {% for ad_type in types %}
+          <option value="{{ ad_type }}">{{ ad_type }}</option>
+          {% endfor %}
         </select>
+        {% endif %}
+        <div id="cost_share_rate_span"></div>
       </div>
       <div class="form-group">
         <label for="count">Number of Ads Run:</label>
@@ -89,6 +92,23 @@
     <p class="mt-5">No data to display.</p>
     {% endif %}
   </div>
+
+  <script>
+    var ad_info = {{ ad_info| safe }};
+    console.log(ad_info)
+
+    function updateCostShareRate() {
+      var adType = document.getElementById("ad_type").value;
+      if (adType !== '') {
+        var costShareRateSpan = document.getElementById("cost_share_rate_span");
+        costShareRateSpan.innerText = "Cost Share Rate: " + ad_info[adType]['cost_share_rate'];
+      } else {
+        var costShareRateSpan = document.getElementById("cost_share_rate_span");
+        costShareRateSpan.innerText = "";
+      }
+
+    }
+  </script>
 </body>
 
 </html>

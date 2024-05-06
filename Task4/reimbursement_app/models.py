@@ -8,6 +8,7 @@ class Ad(models.Model):
     actual_spend = models.FloatField()
     count = models.IntegerField()
     date = models.DateField(default=timezone.now)
+
 class Reimbursement:
     ad_info = {
         '0011': {'cost_share_rate': 0.50, 'allowed_spend_per_ad': (0, 200)},
@@ -17,7 +18,8 @@ class Reimbursement:
     }
 
     def add_ad(self, ad_type, count, spend):
-
+        if ad_type == '':
+            raise InvalidSpendException("Please select Ad Type")
         if count == 0:
             raise InvalidSpendException("Please input count")
 

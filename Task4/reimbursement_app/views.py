@@ -8,9 +8,14 @@ from django.contrib import messages
 def get_all_ads_data():
     reimbursement = Reimbursement()
     all_ads_data = reimbursement.get_ads()
+    ad_info = Reimbursement.ad_info
+
+    types = list(ad_info.keys())
 
     context = {
-        'all_ads_data': all_ads_data
+        'all_ads_data': all_ads_data,
+        'ad_info': ad_info,
+        'types': types,
     }
     return context
 
