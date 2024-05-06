@@ -2,7 +2,17 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-from .models import Reimbursement
+from .models import InvalidSpendException, Reimbursement
+from django.contrib import messages
+
+def get_all_ads_data():
+    reimbursement = Reimbursement()
+    all_ads_data = reimbursement.get_ads()
+
+    context = {
+        'all_ads_data': all_ads_data
+    }
+    return context
 
 @login_required
 def home(request):
@@ -20,31 +30,29 @@ def home(request):
         except ValueError:
             spend = 0.0
 
-        reimbursement = Reimbursement()
-        reimbursement.add_ad(ad_type, count, spend)
+        try:
+            reimbursement = Reimbursement()
+            reimbursement.add_ad(ad_type, count, spend)
+        except InvalidSpendException as e:
+            messages.error(request, str(e))
+            return redirect('home')
 
-        all_ads_data = []
-        for ad_type, ad_info in reimbursement.ads.items():
-            if ad_info['count'] > 0:
-                cost_share = ad_info['cost_share_rate'] * ad_info['actual_spend']
-                reimbursement_value = count * ad_info['cost_share_rate'] * spend
-
-                all_ads_data.append({
-                    'ad_type': ad_type,
-                    'count': ad_info['count'],
-                    'date':  ad_info['date'],
-                    'actual_spend': ad_info['actual_spend'],
-                    'cost_share': cost_share,
-                    'reimbursement': reimbursement_value
-                })
-
-        context = {
-            'all_ads_data': all_ads_data
-        }
-
+        context = get_all_ads_data()
         return render(request, 'reimbursement_app/home.html', context)
+
     else:
-        return render(request, 'reimbursement_app/home.html')
+        context = get_all_ads_data()
+        return render(request, 'reimbursement_app/home.html', context)
+
+
+@login_required
+def delete_ad(request, ad_id):
+    try:
+        reimbursement = Reimbursement()
+        reimbursement.remove_ad(ad_id)
+    except InvalidSpendException as e:
+        messages.error(request, str(e))
+    return redirect('home')
 
 def login_view(request):
     if request.method == 'POST':
